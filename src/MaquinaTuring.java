@@ -127,12 +127,13 @@ public class MaquinaTuring {
         return cinta;
     }
 
-    public void procesar(String input) throws Exception {
+    public Resultado procesar(String input) throws Exception {
         ListaDoble cinta = crearCinta(input);
         char beta = this.gamma[this.alfabeto.length];
         Nodo ap = cinta.cabeza.sig; // apunta al primer simbolo de la cadena
         int estado = 0;
         char mov;
+        String salida = "";
 
         do {
             int columna = MyUtils.indexOf(ap.dato, this.gamma);
@@ -147,9 +148,10 @@ public class MaquinaTuring {
         } while (mov != 'S');
 
         while (ap != null && ap.dato != beta) {
-            System.out.print(ap.dato);
+            salida = salida + ap.dato;
             ap = ap.sig;
         }
-        System.out.println();
+        
+        return new Resultado(MyUtils.contains(estado, this.finales), salida);
     }
 }
