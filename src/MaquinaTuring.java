@@ -50,7 +50,7 @@ public class MaquinaTuring {
         } else {
             this.gamma = linea.replaceAll(",(?!,,)", "").toCharArray();
 
-            if(!MyUtils.validarGamma(this.gamma)) throw new Error("El alfabeto gamma debe contener todos los simbolos del alfabeto y los simbolos de cinta, todos unicos");
+            if(!MyUtils.validarGamma(this.gamma, this.alfabeto)) throw new Error("El alfabeto gamma debe contener todos los simbolos del alfabeto y los simbolos de cinta, todos unicos");
         }
         } else {
         throw new Exception("Alfabeto gamma no puede ser vacio");
@@ -84,7 +84,7 @@ public class MaquinaTuring {
             // divide cada par de llaves separados por coma
             aux = linea.split(",(?![^{]*})");
             if(renglones < this.estados) {
-                if(aux.length == this.alfabeto.length) {
+                if(aux.length == this.gamma.length) {
                     for(int j = 0; j < this.tabla[0].length; j++) {
                         try {
                             Transicion t = new Transicion(aux[j]);
@@ -110,5 +110,46 @@ public class MaquinaTuring {
         if (renglones != this.estados) {
             throw new Exception("El numero de renglones en la tabla de transiciones debe de ser uno menor al numero de estados");
         }
+    }
+
+    private ListaDoble crearCinta(String cadena) throws Exception {
+        // obtiene el primer simbolo auxiliar del alfabeto gamma
+        char beta = this.gamma[this.alfabeto.length];
+        ListaDoble cinta = new ListaDoble();
+
+        cinta.insertarAlInicio(beta);
+        for (char sim : cadena.toCharArray()) {
+            if (!MyUtils.contains(sim, this.alfabeto)) throw new Exception("La cadena contiene simbolos que no pertenecen al alfabeto");
+            cinta.insertarAlFinal(sim);
+        }
+        cinta.insertarAlFinal(beta);
+
+        return cinta;
+    }
+
+    public void procesar(String input) throws Exception {
+        ListaDoble cinta = crearCinta(input);
+        char beta = this.gamma[this.alfabeto.length];
+        Nodo ap = cinta.cabeza.sig; // apunta al primer simbolo de la cadena
+        int estado = 0;
+        char mov;
+
+        do {
+            int columna = MyUtils.indexOf(ap.dato, this.gamma);
+            Transicion t = this.tabla[estado][columna];
+
+            ap.dato = t.sim; // cambia el simbolo en cinta
+            estado = t.estado;
+            mov = t.mov;
+
+            if (mov == 'D') ap = ap.sig;
+            if (mov == 'I') ap = ap.ant;
+        } while (mov != 'S');
+
+        while (ap != null && ap.dato != beta) {
+            System.out.print(ap.dato);
+            ap = ap.sig;
+        }
+        System.out.println();
     }
 }
